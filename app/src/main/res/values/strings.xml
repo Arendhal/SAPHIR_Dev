@@ -1,0 +1,8 @@
+<resources>
+    <string name="STR_AppName">SAPHIR-Astreinte</string>
+    <string name="STR_TimerService">.TimerService</string>
+    <string name="STR_notifyService">NotificationService</string>
+    <string name="STR_DailyService">QuotidienService</string>
+    <string name="STR_SelectTime">Select Time</string>
+    <string name="STR_Ok">OK</string>
+</resources>

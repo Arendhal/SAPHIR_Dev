@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    tools:context="com.saphir.benji.saphir.MainActivity">
+
+    <Button
+        android:id="@+id/StartTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Début"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="33dp"
+        android:layout_above="@+id/StartTime"
+        android:layout_alignStart="@+id/EndTimer"
+        android:layout_marginBottom="17dp" />
+
+    <TextView
+        android:id="@+id/StartTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="XX/XX/XXXX--00h00m00s"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:layout_editor_absoluteX="108dp"
+        tools:layout_editor_absoluteY="113dp"
+        android:layout_marginBottom="69dp"
+        android:layout_above="@+id/EndTimer"
+        android:layout_alignStart="@+id/EndTime" />
+
+    <Button
+        android:id="@+id/EndTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fin"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="188dp"
+        android:layout_marginBottom="144dp"
+        android:layout_above="@+id/Mail"
+        android:layout_alignStart="@+id/Mail" />
+
+    <TextView
+        android:id="@+id/EndTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="XX/XX/XXXX--00h00m00s"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="263dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/Mail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mail"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="386dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="87dp" />
+</RelativeLayout>
