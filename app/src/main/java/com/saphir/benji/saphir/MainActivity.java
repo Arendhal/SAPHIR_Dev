@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.v(TAG_End,"Stopping Timer");
                     mTimerService.stopTimer();
                     updateUIStopRun();
+                    mEndTime.setText("Temps ecoulé : "+mTimerService.elapsedTime() + " secondes");
                 }
 
             }
@@ -150,8 +153,13 @@ public class MainActivity extends AppCompatActivity {
      * Update the timer ; Service must be bound
      */
     private void updateUITimer(){
-        if(mServiceBound){
-            mStartTime.setText(mTimerService.elapsedTime() + " seconds");
+        if(mServiceBound && mTimerService.isTimerRunning()){
+            //mElapsedTime.setText(mTimerService.elapsedTime()+"");
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy--HH:mm:ss");
+            String formatDate= sdf.format(calendar.getTime());
+            mStartTime.setText(formatDate);
+
         }
     }
 

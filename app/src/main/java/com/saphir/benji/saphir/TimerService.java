@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -151,10 +153,12 @@ public class TimerService extends Service {
      * @return Create a notification for the service when in foreground
      */
     private Notification CreateNotification(){
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle("Saphir-Astreinte")
                     .setContentText("Touchez pour revenir a l'application")
-                    .setSmallIcon(R.drawable.logoround_small);
+                    .setSmallIcon(R.drawable.logo_small_nobckg)
+                    .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false));
         Intent resultIntent = new Intent(this,MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);

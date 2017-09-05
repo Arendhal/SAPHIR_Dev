@@ -16,20 +16,20 @@
         tools:layout_editor_absoluteY="33dp"
         android:layout_above="@+id/StartTime"
         android:layout_alignStart="@+id/EndTimer"
-        android:layout_marginBottom="17dp" />
+        android:layout_marginBottom="24dp" />
 
     <TextView
         android:id="@+id/StartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="XX/XX/XXXX--00h00m00s"
+        android:text="XX/XX/XXXX--HH:mm:ss"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         tools:layout_editor_absoluteX="108dp"
         tools:layout_editor_absoluteY="113dp"
-        android:layout_marginBottom="69dp"
         android:layout_above="@+id/EndTimer"
-        android:layout_alignStart="@+id/EndTime" />
+        android:layout_alignStart="@+id/EndTime"
+        android:layout_marginBottom="36dp" />
 
     <Button
         android:id="@+id/EndTimer"
@@ -38,15 +38,15 @@
         android:text="Fin"
         tools:layout_editor_absoluteX="148dp"
         tools:layout_editor_absoluteY="188dp"
-        android:layout_marginBottom="144dp"
-        android:layout_above="@+id/Mail"
-        android:layout_alignStart="@+id/Mail" />
+        android:layout_above="@+id/EndTime"
+        android:layout_alignStart="@+id/Mail"
+        android:layout_marginBottom="36dp" />
 
     <TextView
         android:id="@+id/EndTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="XX/XX/XXXX--00h00m00s"
+        android:text="XX/XX/XXXX--HH:mm:ss"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         tools:layout_editor_absoluteX="99dp"
@@ -64,4 +64,5 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="87dp" />
+
 </RelativeLayout>
