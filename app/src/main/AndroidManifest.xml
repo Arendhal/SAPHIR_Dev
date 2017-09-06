@@ -20,6 +20,10 @@
             android:name=".TimerService"
             android:exported="false"
             />
+        <service
+            android:name=".ComputeHoursService"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

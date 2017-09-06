@@ -139,7 +139,6 @@ public class TimerService extends Service {
         startForeground(NOTIFICATION_ID,CreateNotification());
     }
 
-
     /**
      * Place the service into background
      * @return Place the service into background
@@ -157,7 +156,7 @@ public class TimerService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setContentTitle("Saphir-Astreinte")
                     .setContentText("Touchez pour revenir a l'application")
-                    .setSmallIcon(R.drawable.logo_small_nobckg)
+                    .setSmallIcon(R.drawable.logo_small)
                     .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false));
         Intent resultIntent = new Intent(this,MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);

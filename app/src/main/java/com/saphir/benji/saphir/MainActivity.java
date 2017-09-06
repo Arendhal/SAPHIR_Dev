@@ -1,5 +1,6 @@
 package com.saphir.benji.saphir;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,10 +9,12 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +28,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -34,8 +38,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private TextView mStartTime, mEndTime;
-    private Button mB_StartTimer, mB_EndTimer, mB_Mail;
+    private Button mB_StartTimer, mB_EndTimer, mB_Mail,mB_Quit;
     private TimerService mTimerService;
+    private ComputeHoursService mComputeHours;
 
     //Handler to update the UI while timer is running
     private final Handler mUpdateTimeHandler= new UIUpdateHandler(this);
@@ -60,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         mB_StartTimer = (Button) findViewById(R.id.StartTimer);
         mB_EndTimer = (Button) findViewById(R.id.EndTimer);
         mB_Mail = (Button) findViewById(R.id.Mail);
+        mB_Quit = (Button) findViewById(R.id.QuitButton);
 
         ifHuaweiAlert();
 
@@ -85,12 +91,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(mServiceBound && mTimerService.isTimerRunning()) {
+                    long elapsedTimeInSeconds= mTimerService.elapsedTime();
                     Log.v(TAG_End,"Stopping Timer");
+                    mComputeHours.getAgentStatus(elapsedTimeInSeconds);
                     mTimerService.stopTimer();
                     updateUIStopRun();
-                    mEndTime.setText("Temps ecoulé : "+mTimerService.elapsedTime() + " secondes");
+                    mEndTime.setText(mComputeHours.printWorkTime());
                 }
-
+            mComputeHours.foreground();
             }
         });
 
@@ -103,15 +111,32 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG_Mail,"Mail button pressed");
             }
         });
+
+        mB_Quit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopService(new Intent(MainActivity.this, TimerService.class));
+                stopService(new Intent(MainActivity.this,ComputeHoursService.class));
+                unbindService(mTimerConnection);
+                unbindService(mComputeConnection);
+                finishAffinity();
+                System.exit(0);
+            }
+        });
     }
 
     @Override
     protected void onStart(){
         super.onStart();
         Log.v(TAG,"Starting and binding service");
+        //Binding TimerService
         Intent intent = new Intent(MainActivity.this,TimerService.class);
         startService(intent);
-        bindService(intent,mConnection,0);
+        bindService(intent,mTimerConnection,0);
+        //Binding ComputeHoursService
+        Intent ComputeIntent = new Intent(MainActivity.this,ComputeHoursService.class);
+        startService(ComputeIntent);
+        bindService(ComputeIntent,mComputeConnection,0);
     }
 
     @Override
@@ -120,13 +145,13 @@ public class MainActivity extends AppCompatActivity {
         updateUIStopRun();
        if(mServiceBound){
            //if a timer is active, foreground the service, else kill it
-           if(mTimerService.isTimerRunning()){
+           if(mTimerService.isTimerRunning() ){
                mTimerService.foreground();
            }
            else{
                stopService(new Intent(this,TimerService.class));
            }
-           unbindService(mConnection);
+           unbindService(mTimerConnection);
            mServiceBound=false;
        }
     }
@@ -167,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
      * Callback for service binding, passed down to bindService()
      */
 
-    private ServiceConnection mConnection = new ServiceConnection(){
+    private ServiceConnection mTimerConnection = new ServiceConnection(){
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -189,6 +214,23 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceDisconnected(ComponentName name) {
             Log.v(TAG,"Service unbound");
             mServiceBound = false;
+        }
+    };
+
+    private ServiceConnection mComputeConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.v(TAG,"Service bound");
+            ComputeHoursService.RunServiceBinder binder = (ComputeHoursService.RunServiceBinder) service;
+            mComputeHours = binder.getService();
+            //Making sure service isn't in background when bounding
+            mComputeHours.background();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.v(TAG,"Service unbound");
         }
     };
 
@@ -217,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /*
+    /**
      * Specific code to Huawei protected app feature
      */
     private void ifHuaweiAlert() {

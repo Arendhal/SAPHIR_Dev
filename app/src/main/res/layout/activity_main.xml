@@ -65,4 +65,16 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="87dp" />
 
+    <Button
+        android:id="@+id/QuitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="19dp"
+        android:background="@android:color/white"
+        android:text="Quitter"
+        android:textColor="@android:color/black"
+        android:textStyle="bold|italic" />
+
 </RelativeLayout>
