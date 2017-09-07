@@ -22,7 +22,7 @@
         android:id="@+id/StartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="XX/XX/XXXX--HH:mm:ss"
+        android:text="Temps travaillé: HH:mm:ss"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         tools:layout_editor_absoluteX="108dp"
@@ -61,9 +61,9 @@
         android:text="Mail"
         tools:layout_editor_absoluteX="147dp"
         tools:layout_editor_absoluteY="386dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="87dp" />
+        android:layout_marginBottom="64dp"
+        android:layout_above="@+id/QuitButton"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/QuitButton"

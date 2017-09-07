@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -24,6 +25,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mStartTime, mEndTime;
     private Button mB_StartTimer, mB_EndTimer, mB_Mail,mB_Quit;
+
     private TimerService mTimerService;
     private ComputeHoursService mComputeHours;
 
@@ -47,14 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
     //Message type for the handler
     private final static int  MSG_UPDATE_TIME=0;
-
+    //To know if the timer is bound
     private boolean mServiceBound;
+
     private String TAG_Start ="StartTimerButton : ";
     private String TAG_End ="EndTimerButton : ";
     private String TAG_Mail ="MailButton : ";
     private String TAG="MainActivity";
-    public Context mContext;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
         mB_Quit = (Button) findViewById(R.id.QuitButton);
 
         ifHuaweiAlert();
-
-
         /*
          *  StartTimer button listener
          */
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 if(mServiceBound && !mTimerService.isTimerRunning()) {
                     Log.v(TAG_Start,"StartingTimer");
                     mTimerService.startTimer();
+                    mComputeHours.getDate();
                     updateUIStartRun();
                 }
             }
@@ -109,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.i(TAG_Mail,"Mail button pressed");
+                sendMail();
             }
         });
 
@@ -119,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
                 stopService(new Intent(MainActivity.this,ComputeHoursService.class));
                 unbindService(mTimerConnection);
                 unbindService(mComputeConnection);
+                File file = getFile();
+                file.delete();
                 finishAffinity();
                 System.exit(0);
             }
@@ -156,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
        }
     }
 
-    /*
+    /**
      * Update the UI when a run starts
      */
     private void updateUIStartRun(){
@@ -165,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         mB_EndTimer.setEnabled(true);
     }
 
-    /*
+    /**
      * Update the UI when a run stops
      */
     private void updateUIStopRun(){
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         mB_StartTimer.setEnabled(true);
     }
 
-    /*
+    /**
      * Update the timer ; Service must be bound
      */
     private void updateUITimer(){
@@ -184,14 +189,12 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy--HH:mm:ss");
             String formatDate= sdf.format(calendar.getTime());
             mStartTime.setText(formatDate);
-
         }
     }
 
-    /*
+    /**
      * Callback for service binding, passed down to bindService()
      */
-
     private ServiceConnection mTimerConnection = new ServiceConnection(){
 
         @Override
@@ -235,8 +238,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
-     * When the timer is running useing this handler to update
-     * the UI every second (at least trying to)
+     * When the timer is running using this handler to update
+     * the UI every second
      */
     static class UIUpdateHandler extends Handler{
 
@@ -258,6 +261,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private File getFile(){
+        String pathToFile=getExternalCacheDir()+"/Saphir/agents.txt";
+        File file = new File(pathToFile);
+        if(!file.exists() || !file.canRead()){
+            Log.e(TAG,"Error reading/accessing the file");
+        }
+        return file;
+    }
+
+    private void sendMail(){
+        String [] To={"benjamin.leguen974@gmail.com"};
+        String [] Subject={"Rapport Agent Astreinte"};
+        String [] Body = {"Voir pièce jointe"};
+
+        //Attaching file to mail
+        Uri fileUri= Uri.fromFile(getFile());
+
+        //Creating mail
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL,To);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT,Subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT,"Voir pièce jointe");
+        emailIntent.putExtra(Intent.EXTRA_STREAM,fileUri);
+
+        //Sending mail
+        try{
+            startActivity(Intent.createChooser(emailIntent,"Choisissez votre application de messagerie (GMail,Outlook...)"));
+            finish();
+        }catch (android.content.ActivityNotFoundException ex){
+            Log.e(TAG,"There is no mail client installed "+ ex.toString());
+        }
+    }
 
     /**
      * Specific code to Huawei protected app feature

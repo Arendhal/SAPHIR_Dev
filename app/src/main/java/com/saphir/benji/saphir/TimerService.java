@@ -17,16 +17,10 @@ import android.util.Log;
  * Created by Benji on 04/09/17
  * Timer Service tracks the start and end time of timer; Service can be placed
  * into foreground to prevent it being killed when activity runs away
+ * Returns the elapsed time in seconds
  */
 
 public class TimerService extends Service {
-
-    /** PseudoCode
-     OnStart: launch a timer
-     make the timer visible
-     OnStop: returns for how long it has been running
-     The result should be accessible everywhere
-     */
 
     //Foreground notification ID
     private final static int NOTIFICATION_ID = 1;
@@ -74,7 +68,7 @@ public class TimerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-      Log.v(TAG,"Binding Service");
+      Log.i(TAG,"Binding Service");
         return mServiceBinder;
     }
 
@@ -82,6 +76,22 @@ public class TimerService extends Service {
     public void onDestroy(){
         super.onDestroy();
         Log.i(TAG,"Service destroyed");
+    }
+
+    /**
+     * Place the service into foreground
+     * @return Place the service into foreground
+     */
+    public void foreground(){
+        startForeground(NOTIFICATION_ID,CreateNotification());
+    }
+
+    /**
+     * Place the service into background
+     * @return Place the service into background
+     */
+    public void background(){
+        stopForeground(true);
     }
 
     /**
@@ -129,22 +139,6 @@ public class TimerService extends Service {
         return mEndTime > mStartTime ?
                 (mEndTime-mStartTime)/1000 :
                 (System.currentTimeMillis() - mStartTime)/1000;
-    }
-
-    /**
-     * Place the service into foreground
-     * @return Place the service into foreground
-     */
-    public void foreground(){
-        startForeground(NOTIFICATION_ID,CreateNotification());
-    }
-
-    /**
-     * Place the service into background
-     * @return Place the service into background
-     */
-    public void background(){
-        stopForeground(true);
     }
 
     /**Create a notification for the service when in foreground
