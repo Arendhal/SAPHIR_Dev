@@ -138,31 +138,32 @@ public class ComputeHoursService extends Service {
      * Return the agent's status , the date he started to work and how long has he been working
      * @param elapsedTime
      */
-    public void getAgentStatus(long elapsedTime) {
+    public void getAgentStatus(long elapsedTime) { //To be revised
         long compare = computeWorkTime(elapsedTime);
+        Log.i(TAG,"Compare : "+compare);
         //Si temps de repos > 35H
         if (compare > mInterval35) {
             canWork = true;
-            Write(mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n");
+            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
             printWorkTime();
         }
         //Si temps de repos  entre 24 et 35H
-        if (compare > mInterval24 && compare < mInterval35) {
+        if (compare >= mInterval24 && compare <= mInterval35) {
             shouldRest = true;
-            Write(mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n" );
+            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
             printWorkTime();
         }
         //Si temps de repos inferieur a 24H
         if (compare < mInterval24) {
             cantWork = true;
-            Write(mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n");
+            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
             printWorkTime();
         }
     }
 
     /**
      * Used to do calculations
-     * @param elapsedTime
+     * @param elapsedTime in sec
      * @return mIntervalWeekend - worked time
      */
     public long computeWorkTime(long elapsedTime){
