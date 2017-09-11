@@ -1,8 +1,6 @@
 package com.saphir.benji.saphir;
 
-import android.app.Service;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -10,17 +8,18 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -40,7 +38,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mStartTime, mEndTime;
+    private TextView mStartTime, mWorkTime;
     private Button mB_StartTimer, mB_EndTimer, mB_Mail,mB_Quit;
 
     private TimerService mTimerService;
@@ -54,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
     //To know if the timer is bound
     private boolean mServiceBound;
 
+    //To know which agent is selected in the menu
+    public static String SELECTED_AGENT="";
+
     private String TAG_Start ="StartTimerButton : ";
     private String TAG_End ="EndTimerButton : ";
     private String TAG_Mail ="MailButton : ";
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mStartTime = (TextView) findViewById(R.id.StartTime);
-        mEndTime = (TextView) findViewById(R.id.EndTime);
+        mWorkTime = (TextView) findViewById(R.id.WorkTime);
         mB_StartTimer = (Button) findViewById(R.id.StartTimer);
         mB_EndTimer = (Button) findViewById(R.id.EndTimer);
         mB_Mail = (Button) findViewById(R.id.Mail);
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                     mComputeHours.getAgentStatus(elapsedTimeInSeconds);
                     mTimerService.stopTimer();
                     updateUIStopRun();
-                    mEndTime.setText(mComputeHours.printWorkTime());
+                    mWorkTime.setText(mComputeHours.printWorkTime());
                 }
             mComputeHours.foreground();
             }
@@ -262,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private File getFile(){
-        String pathToFile=getExternalCacheDir()+"/Saphir/agents.txt";
+        String pathToFile=getExternalCacheDir()+"/Saphir/Rapport.txt";
         File file = new File(pathToFile);
         if(!file.exists() || !file.canRead()){
             Log.e(TAG,"Error reading/accessing the file");
@@ -272,8 +273,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendMail(){
         String [] To={"benjamin.leguen974@gmail.com"};
-        String [] Subject={"Rapport Agent Astreinte"};
-        String [] Body = {"Voir pièce jointe"};
 
         //Attaching file to mail
         Uri fileUri= Uri.fromFile(getFile());
@@ -282,16 +281,53 @@ public class MainActivity extends AppCompatActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("text/plain");
         emailIntent.putExtra(Intent.EXTRA_EMAIL,To);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT,Subject);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Rapport Agent Astreinte");
         emailIntent.putExtra(Intent.EXTRA_TEXT,"Voir pièce jointe");
         emailIntent.putExtra(Intent.EXTRA_STREAM,fileUri);
 
         //Sending mail
         try{
             startActivity(Intent.createChooser(emailIntent,"Choisissez votre application de messagerie (GMail,Outlook...)"));
-            finish();
+
         }catch (android.content.ActivityNotFoundException ex){
             Log.e(TAG,"There is no mail client installed "+ ex.toString());
+        }
+    }
+
+    /**
+     * Methods used to make the menu work properly
+     * @param menu the menu to create and use
+     * @return true if menu created ; true if selected item is valid
+     */
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.agent_menu,menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.Agent1:
+                SELECTED_AGENT = item.toString();
+                Log.i(TAG,"MenuItem: "+item.toString());
+                return true;
+            case R.id.Agent2:
+                SELECTED_AGENT = item.toString();
+                Log.i(TAG,"MenuItem: "+item.toString());
+                return true;
+            case R.id.Agent3:
+                SELECTED_AGENT = item.toString();
+                Log.i(TAG,"MenuItem: "+item.toString());
+                return true;
+            case R.id.Agent4:
+                SELECTED_AGENT = item.toString();
+                Log.i(TAG,"MenuItem: "+item.toString());
+                return true;
+            case R.id.Agent5:
+                SELECTED_AGENT = item.toString();
+                Log.i(TAG,"MenuItem: "+item.toString());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

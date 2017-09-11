@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -20,7 +19,6 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-
 /**
  * Created by Benji on 04/09/2017.
  * Compute the work hours of the agent and returns his status
@@ -31,7 +29,10 @@ public class ComputeHoursService extends Service {
     String TAG="ComputeHours";
     public String mStartDate;
 
-    private final static int NOTIFICATION_ID=2;
+    //String containing the selected Agent in the menu
+    public String mSelectedAgent;
+
+    private final static int NOTIFICATION_ID=1;
     //24 & 35H in millis
     long mInterval24 = 86400000;
     long mInterval35 = 126000000;
@@ -87,7 +88,6 @@ public class ComputeHoursService extends Service {
 
     /**
      * Place the service into foreground
-     * @return Place the service into foreground
      */
     public void foreground(){
         startForeground(NOTIFICATION_ID, CreateNotification());
@@ -95,7 +95,6 @@ public class ComputeHoursService extends Service {
 
     /**
      * Place the service into background
-     * @return Place the service into background
      */
     public void background(){
         stopForeground(true);
@@ -105,8 +104,8 @@ public class ComputeHoursService extends Service {
      * TimerService.elapsedTime is passed in argument, and multiplied by 1000
      * to get the time back in millis
      * Milliseconds are better to use with the comparison time
-     * @param elapsedTime
-     * @return
+     * @param elapsedTime in seconds
+     * @return elapsedTime in millis
      */
     public long getElapsedTimeInMillis(long elapsedTime){
             elapsedTimeinMillis += elapsedTime * 1000;
@@ -116,7 +115,7 @@ public class ComputeHoursService extends Service {
 
     /**
      * Get the elapsed time in sec
-     * @return
+     * @return get elapsed time in sec
      */
     public long getElapsedTimeinSec(){
         return elapsedTimeinMillis/1000;
@@ -135,8 +134,21 @@ public class ComputeHoursService extends Service {
     }
 
     /**
+     * Get the currently selected agent in the menu
+     * @return name of selected agent
+     */
+    public String getSelectedAgent(){
+        mSelectedAgent = MainActivity.SELECTED_AGENT;
+        //Si la chaine est vide
+        if(MainActivity.SELECTED_AGENT.equals("")){
+            mSelectedAgent="Pas d'agent selectionné";
+        }
+        return mSelectedAgent;
+    }
+
+    /**
      * Return the agent's status , the date he started to work and how long has he been working
-     * @param elapsedTime
+     * @param elapsedTime in millis
      */
     public void getAgentStatus(long elapsedTime) { //To be revised
         long compare = computeWorkTime(elapsedTime);
@@ -144,19 +156,19 @@ public class ComputeHoursService extends Service {
         //Si temps de repos > 35H
         if (compare > mInterval35) {
             canWork = true;
-            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
+            Write("Compare : "+compare+ "\n"+ getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
             printWorkTime();
         }
         //Si temps de repos  entre 24 et 35H
         if (compare >= mInterval24 && compare <= mInterval35) {
             shouldRest = true;
-            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
+            Write("Compare : "+compare+ "\n" + getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
             printWorkTime();
         }
         //Si temps de repos inferieur a 24H
         if (compare < mInterval24) {
             cantWork = true;
-            Write("Compare : "+compare+ "\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
+            Write("Compare : "+compare+ "\n" +getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
             printWorkTime();
         }
     }
@@ -175,22 +187,21 @@ public class ComputeHoursService extends Service {
      * @return the work time in a fancy way
      */
     public String printWorkTime(){
-            long sec = getElapsedTimeinSec();
-            long mins = sec/60;
-            long hours = mins/60;
-            String WorkTime = "Temps travaillé : " +hours%24+"H "+mins%60+"m "+sec%60+"s"+"\n";
-        return WorkTime;
-        }
+        long sec = getElapsedTimeinSec();
+        long mins = sec/60;
+        long hours = mins/60;
+        return "Temps total de travail : " +hours%24+"H "+mins%60+"m "+sec%60+"s"+"\n";
+    }
 
     /**
      * Create a Saphir folder in the external storage and write to the
      * 'agents.txt' file in it
-     * @param toWrite
+     * @param toWrite data to write
      */
     private void Write(String toWrite){
         File folder = new File(getExternalCacheDir(),"Saphir");
         folder.mkdirs();
-        File file = new File(folder,"agents.txt");
+        File file = new File(folder,"Rapport.txt");
         try {
             file.createNewFile();
 
@@ -219,7 +230,8 @@ public class ComputeHoursService extends Service {
                 .setContentTitle("Saphir-Astreinte")
                 .setContentText("Touchez pour revenir a l'application")
                 .setSmallIcon(R.drawable.logo_small)
-                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false));
+                .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
+                .setPriority(Notification.PRIORITY_MIN);
         Intent resultIntent = new Intent(this,MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
