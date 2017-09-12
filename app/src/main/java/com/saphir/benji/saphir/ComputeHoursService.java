@@ -150,25 +150,25 @@ public class ComputeHoursService extends Service {
      * Return the agent's status , the date he started to work and how long has he been working
      * @param elapsedTime in millis
      */
-    public void getAgentStatus(long elapsedTime) { //To be revised
+    public void getAgentStatus(long elapsedTime) { //TODO verify calculation & remove Compare in the Write() method
         long compare = computeWorkTime(elapsedTime);
         Log.i(TAG,"Compare : "+compare);
         //Si temps de repos > 35H
         if (compare > mInterval35) {
             canWork = true;
-            Write("Compare : "+compare+ "\n"+ getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
+            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
             printWorkTime();
         }
         //Si temps de repos  entre 24 et 35H
         if (compare >= mInterval24 && compare <= mInterval35) {
             shouldRest = true;
-            Write("Compare : "+compare+ "\n" + getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
+            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
             printWorkTime();
         }
         //Si temps de repos inferieur a 24H
         if (compare < mInterval24) {
             cantWork = true;
-            Write("Compare : "+compare+ "\n" +getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
+            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
             printWorkTime();
         }
     }
@@ -231,7 +231,7 @@ public class ComputeHoursService extends Service {
                 .setContentText("Touchez pour revenir a l'application")
                 .setSmallIcon(R.drawable.logo_small)
                 .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
-                .setPriority(Notification.PRIORITY_MIN);
+                .setPriority(Notification.PRIORITY_LOW);
         Intent resultIntent = new Intent(this,MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(this,0,resultIntent,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);

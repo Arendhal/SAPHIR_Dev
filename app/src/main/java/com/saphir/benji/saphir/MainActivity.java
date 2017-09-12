@@ -1,6 +1,8 @@
 package com.saphir.benji.saphir;
 
+import android.app.Dialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -12,10 +14,12 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Handler;
+import android.renderscript.ScriptGroup;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +27,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView mStartTime, mWorkTime;
@@ -44,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private TimerService mTimerService;
     private ComputeHoursService mComputeHours;
 
+    private Context mContext;
+
     //Handler to update the UI while timer is running
     private final Handler mUpdateTimeHandler= new UIUpdateHandler(this);
 
@@ -51,13 +57,14 @@ public class MainActivity extends AppCompatActivity {
     private final static int  MSG_UPDATE_TIME=0;
     //To know if the timer is bound
     private boolean mServiceBound;
+    //Used to disable the menu
+    public boolean mIsFinalized;
 
     //To know which agent is selected in the menu
     public static String SELECTED_AGENT="";
-
+    private final static String PASSWORD="Saphir"; //TODO change it to a better password
     private String TAG_Start ="StartTimerButton : ";
     private String TAG_End ="EndTimerButton : ";
-    private String TAG_Mail ="MailButton : ";
     private String TAG="MainActivity";
 
     @Override
@@ -70,8 +77,10 @@ public class MainActivity extends AppCompatActivity {
         mB_EndTimer = (Button) findViewById(R.id.EndTimer);
         mB_Mail = (Button) findViewById(R.id.Mail);
         mB_Quit = (Button) findViewById(R.id.QuitButton);
+        mContext = MainActivity.this;
 
         ifHuaweiAlert();
+
         /*
          *  StartTimer button listener
          */
@@ -83,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
                     mTimerService.startTimer();
                     mComputeHours.getDate();
                     updateUIStartRun();
+                }
+                if(SELECTED_AGENT.equals("")){
+                    Toast.makeText(mContext,"Aucun agent selectionné",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -111,22 +123,17 @@ public class MainActivity extends AppCompatActivity {
         mB_Mail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG_Mail,"Mail button pressed");
                 sendMail();
             }
         });
 
+        /*
+         * Quit Button listener, should be password protected
+         */
         mB_Quit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopService(new Intent(MainActivity.this, TimerService.class));
-                stopService(new Intent(MainActivity.this,ComputeHoursService.class));
-                unbindService(mTimerConnection);
-                unbindService(mComputeConnection);
-                File file = getFile();
-                file.delete();
-                finishAffinity();
-                System.exit(0);
+                passwordDialog();
             }
         });
     }
@@ -294,41 +301,94 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void quitApplication(){
+        stopService(new Intent(MainActivity.this, TimerService.class));
+        stopService(new Intent(MainActivity.this,ComputeHoursService.class));
+        unbindService(mTimerConnection);
+        unbindService(mComputeConnection);
+        File file = getFile();
+        file.delete();
+        finishAffinity();
+        System.exit(0);
+    }
+
+    private void passwordDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        final EditText editText = new EditText(mContext);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(editText);
+        builder.setMessage("Mot de passe")
+                .setCancelable(true)
+                .setPositiveButton("Valider", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if(editText.getText().toString().equals(PASSWORD)) {
+                            Toast.makeText(mContext,"Mot de passe correct",Toast.LENGTH_LONG).show();
+                            quitApplication();
+                        }
+                        else {
+                            Toast.makeText(mContext,"Mot de passe incorrect",Toast.LENGTH_LONG).show();
+                            dialog.cancel();
+                        }
+                    }
+                })
+                .setNegativeButton("Retour", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+         builder.create();
+         builder.show();
+    }
+
     /**
-     * Methods used to make the menu work properly
+     * Methods used to make the menu, display the items and disable them once
+     * an agent is selected
      * @param menu the menu to create and use
-     * @return true if menu created ; true if selected item is valid
+     * @return true if menu created ; true if selected item is valid ; true to display the modified menu
      */
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.agent_menu,menu);
+        mIsFinalized=false;
         return true;
     }
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.Agent1:
                 SELECTED_AGENT = item.toString();
-                Log.i(TAG,"MenuItem: "+item.toString());
+                mIsFinalized = true;
                 return true;
             case R.id.Agent2:
                 SELECTED_AGENT = item.toString();
-                Log.i(TAG,"MenuItem: "+item.toString());
+                mIsFinalized = true;
                 return true;
             case R.id.Agent3:
                 SELECTED_AGENT = item.toString();
-                Log.i(TAG,"MenuItem: "+item.toString());
+                mIsFinalized = true;
                 return true;
             case R.id.Agent4:
                 SELECTED_AGENT = item.toString();
-                Log.i(TAG,"MenuItem: "+item.toString());
+                mIsFinalized = true;
                 return true;
             case R.id.Agent5:
                 SELECTED_AGENT = item.toString();
-                Log.i(TAG,"MenuItem: "+item.toString());
+                mIsFinalized = true;
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    public boolean onPrepareOptionsMenu(Menu menu){
+        if (mIsFinalized){
+            int i,size=menu.size();
+            for(i = 0; i < size; i++){
+                menu.getItem(i).setEnabled(false);
+            }
+        }
+        return true;
     }
 
     /**
