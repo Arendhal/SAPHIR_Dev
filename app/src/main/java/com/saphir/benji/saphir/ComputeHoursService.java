@@ -28,6 +28,7 @@ public class ComputeHoursService extends Service {
 
     String TAG="ComputeHours";
     public String mStartDate;
+    public String mEndDate;
 
     //String containing the selected Agent in the menu
     public String mSelectedAgent;
@@ -126,11 +127,23 @@ public class ComputeHoursService extends Service {
      * the start button
      * @return date and time on which the user pressed the start button
      */
-    public String getDate(){
+    public String getStartDate(){
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy--HH:mm:ss");
-        mStartDate = "Date de début: "+sdf.format(calendar.getTime());
+        mStartDate = "Horaires: "+sdf.format(calendar.getTime());
         return mStartDate;
+    }
+
+    /**
+     * Used on MainActivity to get the date and time on which the user pressed
+     * the end button
+     * @return date and time on which the user pressed the end button
+     */
+    public String getEndDate(){
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy--HH:mm:ss");
+        mEndDate = " à "+sdf.format(calendar.getTime());
+        return mEndDate;
     }
 
     /**
@@ -150,25 +163,25 @@ public class ComputeHoursService extends Service {
      * Return the agent's status , the date he started to work and how long has he been working
      * @param elapsedTime in millis
      */
-    public void getAgentStatus(long elapsedTime) { //TODO verify calculation & remove Compare in the Write() method
+    public void getAgentStatus(long elapsedTime) { //TODO verify calculation
         long compare = computeWorkTime(elapsedTime);
         Log.i(TAG,"Compare : "+compare);
         //Si temps de repos > 35H
         if (compare > mInterval35) {
             canWork = true;
-            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent est disponible\n\n");
+            Write(getSelectedAgent() +"\n" + mStartDate+ mEndDate + "\n" + printWorkTime() + "Cet agent est disponible\n\n");
             printWorkTime();
         }
         //Si temps de repos  entre 24 et 35H
         if (compare >= mInterval24 && compare <= mInterval35) {
             shouldRest = true;
-            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent devrait se reposer\n\n" );
+            Write(getSelectedAgent() +"\n" + mStartDate+ mEndDate + "\n" + printWorkTime() + "Cet agent devrait se reposer\n\n");
             printWorkTime();
         }
         //Si temps de repos inferieur a 24H
         if (compare < mInterval24) {
             cantWork = true;
-            Write(getSelectedAgent() +"\n" + mStartDate+"\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
+            Write(getSelectedAgent() +"\n" + mStartDate+ mEndDate + "\n" + printWorkTime() + "Cet agent doit ce reposer immédiatement\n\n");
             printWorkTime();
         }
     }

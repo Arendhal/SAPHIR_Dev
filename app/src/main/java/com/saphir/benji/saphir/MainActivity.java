@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 if(mServiceBound && !mTimerService.isTimerRunning()) {
                     Log.v(TAG_Start,"StartingTimer");
                     mTimerService.startTimer();
-                    mComputeHours.getDate();
+                    mComputeHours.getStartDate();
                     updateUIStartRun();
                 }
                 if(SELECTED_AGENT.equals("")){
@@ -107,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(mServiceBound && mTimerService.isTimerRunning()) {
                     long elapsedTimeInSeconds= mTimerService.elapsedTime();
-                    Log.v(TAG_End,"Stopping Timer");
+                    Log.v(TAG_End,"Stopping Services");
+                    mComputeHours.getEndDate();
                     mComputeHours.getAgentStatus(elapsedTimeInSeconds);
                     mTimerService.stopTimer();
                     updateUIStopRun();
