@@ -5,18 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context="com.saphir.benji.saphir.MainActivity">
+    tools:context="com.saphir.astreinte.saphir.MainActivity">
 
     <Button
         android:id="@+id/StartTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Début"
-        tools:layout_editor_absoluteX="147dp"
-        tools:layout_editor_absoluteY="33dp"
         android:layout_above="@+id/StartTime"
         android:layout_alignStart="@+id/EndTimer"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"
+        android:elevation="0dp"
+        android:text="Début"
+        tools:layout_editor_absoluteX="147dp"
+        tools:layout_editor_absoluteY="33dp" />
 
     <TextView
         android:id="@+id/StartTime"
@@ -49,6 +50,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:text="Temps total de travail: HH:mm:ss"
+        android:textAllCaps="false"
         android:textColor="@android:color/black"
         android:textSize="16sp"
         tools:layout_editor_absoluteX="99dp"
@@ -58,12 +60,12 @@
         android:id="@+id/Mail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/QuitButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="19dp"
         android:text="Mail"
         tools:layout_editor_absoluteX="147dp"
-        tools:layout_editor_absoluteY="386dp"
-        android:layout_marginBottom="64dp"
-        android:layout_above="@+id/QuitButton"
-        android:layout_centerHorizontal="true" />
+        tools:layout_editor_absoluteY="386dp" />
 
     <Button
         android:id="@+id/QuitButton"
@@ -76,5 +78,17 @@
         android:text="Quitter"
         android:textColor="@android:color/black"
         android:textStyle="bold|italic" />
+
+    <EditText
+        android:id="@+id/Type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/WorkTime"
+        android:layout_below="@+id/WorkTime"
+        android:layout_marginTop="31dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Type d'activité"
+        android:textSize="16sp" />
 
 </RelativeLayout>

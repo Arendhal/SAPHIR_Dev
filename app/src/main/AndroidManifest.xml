@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.saphir.benji.saphir">
+    package="com.saphir.astreinte.saphir">
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:roundIcon="@drawable/logo_small"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="com.saphir.astreinte.saphir.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,11 +17,11 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".TimerService"
+            android:name="com.saphir.astreinte.saphir.TimerService"
             android:exported="false"
             />
         <service
-            android:name=".ComputeHoursService"
+            android:name="com.saphir.astreinte.saphir.ComputeHoursService"
             android:exported="false"
             />
     </application>

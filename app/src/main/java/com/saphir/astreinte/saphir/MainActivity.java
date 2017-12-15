@@ -1,6 +1,5 @@
-package com.saphir.benji.saphir;
+package com.saphir.astreinte.saphir;
 
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,7 +13,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Handler;
-import android.renderscript.ScriptGroup;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mStartTime, mWorkTime;
     private Button mB_StartTimer, mB_EndTimer, mB_Mail,mB_Quit;
+    private EditText mE_Type;
 
     private TimerService mTimerService;
     private ComputeHoursService mComputeHours;
@@ -62,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
 
     //To know which agent is selected in the menu
     public static String SELECTED_AGENT="";
-    private final static String PASSWORD="Saphir"; //TODO change it to a better password
+    private final static String PASSWORD="S@ph1r"; //TODO change it to a better password
     private String TAG_Start ="StartTimerButton : ";
     private String TAG_End ="EndTimerButton : ";
-    private String TAG="MainActivity";
+    private String TAG ="MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         mB_EndTimer = (Button) findViewById(R.id.EndTimer);
         mB_Mail = (Button) findViewById(R.id.Mail);
         mB_Quit = (Button) findViewById(R.id.QuitButton);
+        mE_Type = (EditText) findViewById(R.id.Type);
         mContext = MainActivity.this;
 
         ifHuaweiAlert();
@@ -124,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
         mB_Mail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mComputeHours.getType(mE_Type.getText().toString());
+                mComputeHours.Write("Type d'activité:"+mE_Type.getText().toString()+"\n");
                 sendMail();
             }
         });
@@ -171,6 +173,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * When the timer is running using this handler to update
+     * the UI every second
+     */
+    static class UIUpdateHandler extends Handler{
+
+        private final static int UPDATE_RATE_MS=1000;
+        private String TAG="UIUpdateHandler";
+        private final WeakReference<MainActivity> activityWeakReference;
+
+        UIUpdateHandler(MainActivity activity){
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message message){
+            if(MSG_UPDATE_TIME == message.what) {
+                activityWeakReference.get().updateUITimer();
+                sendEmptyMessageDelayed(MSG_UPDATE_TIME, UPDATE_RATE_MS);
+            }
+        }
+    }
+    /**
      * Update the UI when a run starts
      */
     private void updateUIStartRun(){
@@ -178,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
         mB_StartTimer.setEnabled(false);
         mB_EndTimer.setEnabled(true);
     }
-
     /**
      * Update the UI when a run stops
      */
@@ -187,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
         mB_EndTimer.setEnabled(false);
         mB_StartTimer.setEnabled(true);
     }
-
     /**
      * Update the timer ; Service must be bound
      */
@@ -228,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
             mServiceBound = false;
         }
     };
-
     private ServiceConnection mComputeConnection = new ServiceConnection(){
 
         @Override
@@ -246,30 +267,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    /**
-     * When the timer is running using this handler to update
-     * the UI every second
-     */
-    static class UIUpdateHandler extends Handler{
-
-        private final static int UPDATE_RATE_MS=1000;
-        private String TAG="UIUpdateHandler";
-        private final WeakReference<MainActivity> activityWeakReference;
-
-        UIUpdateHandler(MainActivity activity){
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message message){
-            if(MSG_UPDATE_TIME == message.what) {
-                Log.v(TAG, "updating time");
-                activityWeakReference.get().updateUITimer();
-                sendEmptyMessageDelayed(MSG_UPDATE_TIME, UPDATE_RATE_MS);
-            }
-        }
-    }
-
     private File getFile(){
         String pathToFile=getExternalCacheDir()+"/Saphir/Rapport.txt";
         File file = new File(pathToFile);
@@ -280,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendMail(){
-        String [] To={"benjamin.leguen974@gmail.com"};
+       final String [] To={"f.mirand@saphir.re"}; //TODO Change the mail to the correct person
 
         //Attaching file to mail
         Uri fileUri= Uri.fromFile(getFile());
@@ -296,7 +293,6 @@ public class MainActivity extends AppCompatActivity {
         //Sending mail
         try{
             startActivity(Intent.createChooser(emailIntent,"Choisissez votre application de messagerie (GMail,Outlook...)"));
-
         }catch (android.content.ActivityNotFoundException ex){
             Log.e(TAG,"There is no mail client installed "+ ex.toString());
         }
@@ -342,6 +338,12 @@ public class MainActivity extends AppCompatActivity {
                 });
          builder.create();
          builder.show();
+    }
+
+    private void enableButton(){
+        if(SELECTED_AGENT.equals("")){
+            mB_StartTimer.setEnabled(false);
+        }
     }
 
     /**

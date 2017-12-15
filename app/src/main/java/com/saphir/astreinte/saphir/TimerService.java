@@ -1,4 +1,4 @@
-package com.saphir.benji.saphir;
+package com.saphir.astreinte.saphir;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -14,7 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
- * Created by Benji on 04/09/17
+ * Created by Benjamin on 04/09/17
  * Timer Service tracks the start and end time of timer; Service can be placed
  * into foreground to prevent it being killed when activity runs away
  * Returns the elapsed time in seconds
@@ -80,7 +80,6 @@ public class TimerService extends Service {
 
     /**
      * Place the service into foreground
-     * @return Place the service into foreground
      */
     public void foreground(){
         startForeground(NOTIFICATION_ID,CreateNotification());
@@ -88,7 +87,6 @@ public class TimerService extends Service {
 
     /**
      * Place the service into background
-     * @return Place the service into background
      */
     public void background(){
         stopForeground(true);
@@ -96,7 +94,6 @@ public class TimerService extends Service {
 
     /**
      * Starts the timer
-     * @return Starts the timer
     **/
     public void startTimer(){
         if(!isTimerRunning){
@@ -110,7 +107,6 @@ public class TimerService extends Service {
 
     /**
      * Stops the timer
-     * @return Stops the timer
      */
     public void stopTimer(){
         if(isTimerRunning){

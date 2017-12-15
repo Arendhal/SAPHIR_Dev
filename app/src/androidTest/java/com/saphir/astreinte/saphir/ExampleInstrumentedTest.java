@@ -1,4 +1,4 @@
-package com.saphir.benji.saphir;
+package com.saphir.astreinte.saphir;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.saphir.benji.saphir", appContext.getPackageName());
+        assertEquals("com.saphir.com.saphir.dev.astreinte.saphir", appContext.getPackageName());
     }
 }

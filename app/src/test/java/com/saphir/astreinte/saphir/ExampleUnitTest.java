@@ -1,4 +1,4 @@
-package com.saphir.benji.saphir;
+package com.saphir.astreinte.saphir;
 
 import org.junit.Test;
 
